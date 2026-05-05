@@ -1,0 +1,33 @@
+{
+  "manifest_version": 3,
+  "name": "BetAnalyzer",
+  "version": "1.0",
+  "description": "Analyse les cotes en temps réel avec les stats Flashscore",
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "BetAnalyzer"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.betclic.fr/*",
+        "*://*.betclic.com/*",
+        "*://*.winamax.fr/*",
+        "*://*.unibet.fr/*",
+        "*://*.pmu.fr/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "permissions": [
+    "activeTab",
+    "tabs"
+  ],
+  "host_permissions": [
+    "https://flashscore4.p.rapidapi.com/*"
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "StyleShifter",
+  "version": "1.0.0",
+  "description": "Transforme les titres d'une page web dans un style choisi",
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content-script.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "permissions": ["storage", "activeTab", "tabs", "scripting"],
+  "host_permissions": ["http://localhost/*", "http://127.0.0.1/*", "http://10.100.0.132/*"]
+}

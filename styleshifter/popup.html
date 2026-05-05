@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>StyleShifter</title>
+    <link rel="stylesheet" href="/src/popup.css" />
+  </head>
+  <body>
+    <div class="header">
+      <h1>🎭 StyleShifter</h1>
+      <p>Choisissez un style à appliquer</p>
+    </div>
+
+    <div class="styles-grid" id="styles-grid"></div>
+
+    <div class="actions">
+      <button class="btn-transform" id="btn-transform" disabled>Transformer</button>
+      <button class="btn-restore" id="btn-restore">Restaurer</button>
+    </div>
+
+    <p class="status" id="status"></p>
+
+    <script src="/src/popup.js" type="module"></script>
+  </body>
+</html>

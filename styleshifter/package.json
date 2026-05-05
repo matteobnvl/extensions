@@ -1,0 +1,22 @@
+{
+  "name": "styleshifter",
+  "version": "1.0.0",
+  "description": "Extension Chrome/Firefox de transformation de pages web",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently \"vite build --watch\" \"web-ext run --source-dir dist\"",
+    "build": "vite build",
+    "start": "web-ext run --source-dir dist"
+  },
+  "dependencies": {
+    "alpinejs": "^3.14.9"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "vite": "^8.0.10",
+    "web-ext": "^8.4.0"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
