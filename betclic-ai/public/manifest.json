@@ -1,11 +1,11 @@
 {
   "manifest_version": 3,
-  "name": "BetAnalyzer",
+  "name": "Betclic AI",
   "version": "1.0",
-  "description": "Analyse les cotes en temps réel avec les stats Flashscore",
+  "description": "Analyse les cotes Betclic et génère 3 tickets via IA",
   "action": {
     "default_popup": "popup.html",
-    "default_title": "BetAnalyzer"
+    "default_title": "Betclic AI"
   },
   "background": {
     "service_worker": "background.js"
@@ -14,10 +14,7 @@
     {
       "matches": [
         "*://*.betclic.fr/*",
-        "*://*.betclic.com/*",
-        "*://*.winamax.fr/*",
-        "*://*.unibet.fr/*",
-        "*://*.pmu.fr/*"
+        "*://*.betclic.com/*"
       ],
       "js": ["content.js"],
       "run_at": "document_idle"
@@ -29,6 +26,6 @@
     "storage"
   ],
   "host_permissions": [
-    "https://flashscore4.p.rapidapi.com/*"
+    "http://localhost/*"
   ]
 }

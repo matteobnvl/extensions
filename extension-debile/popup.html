@@ -48,6 +48,83 @@
       vertical-align: middle;
     }
 
+    .section {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid #1e293b;
+    }
+    .section-title {
+      font-size: 10px;
+      font-weight: 700;
+      color: #475569;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .input-wrap { position: relative; }
+    input[type="password"], input[type="text"] {
+      width: 100%;
+      background: #1e293b;
+      border: 1px solid #1e3a5f;
+      border-radius: 6px;
+      padding: 7px 32px 7px 10px;
+      font-size: 11px;
+      color: #f1f5f9;
+      outline: none;
+    }
+    input:focus { border-color: #3b82f6; }
+    input::placeholder { color: #334155; }
+
+    .toggle-btn {
+      position: absolute;
+      right: 8px; top: 50%;
+      transform: translateY(-50%);
+      background: none; border: none;
+      color: #475569; cursor: pointer;
+      font-size: 12px; padding: 0;
+    }
+    .toggle-btn:hover { color: #94a3b8; }
+
+    .save-btn {
+      margin-top: 7px;
+      width: 100%;
+      background: #1e3a5f;
+      border: 1px solid #2d5a9e;
+      border-radius: 6px;
+      padding: 7px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #93c5fd;
+      cursor: pointer;
+    }
+    .save-btn:hover { background: #1e4a7a; }
+    .save-btn:disabled { opacity: 0.5; cursor: default; }
+
+    .feedback {
+      margin-top: 6px;
+      font-size: 10px;
+      text-align: center;
+      height: 14px;
+    }
+    .feedback.ok  { color: #22c55e; }
+    .feedback.err { color: #ef4444; }
+
+    .key-status {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 10px;
+      margin-bottom: 8px;
+    }
+    .key-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .key-dot.set   { background: #22c55e; }
+    .key-dot.unset { background: #ef4444; }
+
     .footer {
       border-top: 1px solid #1e293b;
       padding: 8px 16px;
@@ -55,20 +132,6 @@
       color: #1e3a5f;
       display: flex;
       justify-content: space-between;
-    }
-
-    .sites {
-      margin: 8px 0 4px;
-      font-size: 10px;
-      color: #334155;
-    }
-    .site-tag {
-      display: inline-block;
-      background: #1e293b;
-      border-radius: 4px;
-      padding: 2px 6px;
-      margin: 2px 2px 0 0;
-      color: #475569;
     }
   </style>
 </head>
@@ -90,19 +153,19 @@
       <span>Source des stats</span>
       <span class="row-val">Flashscore API</span>
     </div>
-    <div class="row">
-      <span>Méthode</span>
-      <span class="row-val">Shadow DOM · Alpine.js</span>
-    </div>
 
-    <div class="sites">
-      Sites supportés :
-      <div style="margin-top:4px">
-        <span class="site-tag">betclic.fr</span>
-        <span class="site-tag">winamax.fr</span>
-        <span class="site-tag">unibet.fr</span>
-        <span class="site-tag">pmu.fr</span>
+    <div class="section">
+      <div class="section-title">Clé RapidAPI</div>
+      <div class="key-status">
+        <span class="key-dot" id="key-dot"></span>
+        <span id="key-label"></span>
       </div>
+      <div class="input-wrap">
+        <input type="password" id="api-key-input" placeholder="Coller la clé RapidAPI ici" autocomplete="off" spellcheck="false">
+        <button class="toggle-btn" id="toggle-visibility" title="Afficher/masquer">👁</button>
+      </div>
+      <button class="save-btn" id="save-btn">Sauvegarder</button>
+      <div class="feedback" id="feedback"></div>
     </div>
   </div>
 
