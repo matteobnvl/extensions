@@ -1,4 +1,4 @@
-#!/bin/sh
+﻿#!/bin/sh
 ollama serve &
 
 until ollama list > /dev/null 2>&1; do

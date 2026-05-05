@@ -5,10 +5,12 @@
   "type": "module",
   "scripts": {
     "build": "vite build && ENTRY=content vite build && ENTRY=background vite build",
+    "build:win": "vite build && cross-env ENTRY=content vite build && cross-env ENTRY=background vite build",
     "dev": "concurrently \"vite build --watch\" \"ENTRY=content vite build --watch\" \"ENTRY=background vite build --watch\""
   },
   "devDependencies": {
     "concurrently": "^9.2.1",
+    "cross-env": "^7.0.3",
     "vite": "^8.0.10"
   },
   "dependencies": {

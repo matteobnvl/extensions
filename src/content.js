@@ -27,10 +27,40 @@ function scrapeMarketRows(marketEl) {
   return rows
 }
 
+function scrapeLive(header) {
+  const timerText = header.querySelector('scoreboards-timer')?.textContent?.trim()
+  if (!timerText) return null
+
+  const score1 = header.querySelector('.scoreboard_score.scoreboard_score-1')?.textContent?.trim() ?? '0'
+  const score2 = header.querySelector('.scoreboard_score.scoreboard_score-2')?.textContent?.trim() ?? '0'
+  const red1El  = header.querySelector('.scoreboard_cards.scoreboard_cards-1 .scoreboard_card.is-red')
+  const red2El  = header.querySelector('.scoreboard_cards.scoreboard_cards-2 .scoreboard_card.is-red')
+
+  return {
+    timer:    timerText,
+    score:    { home: score1, away: score2 },
+    redCards: {
+      home: red1El ? parseInt(red1El.textContent) : 0,
+      away: red2El ? parseInt(red2El.textContent) : 0,
+    },
+  }
+}
+
 function scrape() {
-  const home = document.querySelector('[data-qa="contestant-1-label"]')?.textContent?.trim()
-  const away = document.querySelector('[data-qa="contestant-2-label"]')?.textContent?.trim()
-  if (!home || !away) return null
+  // Exclure les labels dans la sidebar des matchs live
+  const label1El = [...document.querySelectorAll('[data-qa="contestant-1-label"]')]
+    .find(el => !el.closest('sports-live-event-bucket'))
+  const label2El = [...document.querySelectorAll('[data-qa="contestant-2-label"]')]
+    .find(el => !el.closest('sports-live-event-bucket'))
+  if (!label1El || !label2El) return null
+
+  const home = label1El.textContent.trim()
+  const away = label2El.textContent.trim()
+
+  // Remonter depuis le label pour trouver le header du match courant
+  // garantit qu'on reste dans le même conteneur pour le live
+  const header = label1El.closest('[sportseventheader]')
+
   const markets = {}
   for (const marketEl of document.querySelectorAll('sports-markets-single-market.marketElement')) {
     const title = marketEl.querySelector('h2.marketBox_headTitle')?.textContent?.trim()
@@ -38,7 +68,8 @@ function scrape() {
     const rows = scrapeMarketRows(marketEl)
     if (rows.length) markets[title] = rows
   }
-  return { match: `${home} vs ${away}`, home, away, markets }
+
+  return { match: `${home} vs ${away}`, home, away, markets, live: header ? scrapeLive(header) : null }
 }
 
 const STYLES = `
@@ -107,6 +138,17 @@ const STYLES = `
   .match-name { font-size: 13px; font-weight: 800; color: #111827; }
   .match-sub  { font-size: 11px; color: #6B7280; margin-top: 4px; font-weight: 500; }
   .match-none { font-size: 12px; color: #6B7280; font-style: italic; }
+
+  .live-block { margin-top: 8px; padding: 8px 10px; background: #FFF5F5; border: 1px solid #FCA5A5; border-radius: 8px; }
+  .live-timer { font-size: 10px; font-weight: 700; color: #E3001B; text-align: center; margin-bottom: 6px; letter-spacing: 0.3px; }
+  .live-score-row { display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .live-team  { font-size: 11px; font-weight: 700; color: #111827; flex: 1; }
+  .live-team.home { text-align: right; }
+  .live-team.away { text-align: left; }
+  .live-score { font-size: 20px; font-weight: 900; color: #111827; letter-spacing: 2px; }
+  .live-red   { display: inline-block; background: #DC2626; color: #fff; font-size: 9px; font-weight: 800; border-radius: 3px; padding: 0px 4px; margin-left: 4px; vertical-align: middle; }
+  .live-red.home { margin-left: 4px; }
+  .live-red.away { margin-left: 0; margin-right: 4px; }
 
   .mode-row {
     display: flex; align-items: center;
@@ -200,7 +242,9 @@ class BetclicWidget {
     this._matchNone   = mk('div', 'match-none');  this._matchNone.textContent = 'Aucun match détecté…'
     this._matchName   = mk('div', 'match-name')
     this._matchSub    = mk('div', 'match-sub')
-    const matchInfo   = mk('div');                matchInfo.append(this._matchName, this._matchSub)
+    this._matchLive   = mk('div', 'live-block')
+    this._matchLive.style.display = 'none'
+    const matchInfo   = mk('div');                matchInfo.append(this._matchName, this._matchSub, this._matchLive)
     this._matchInfo   = matchInfo
     matchInfo.style.display = 'none'
     matchBox.append(this._matchNone, matchInfo)
@@ -284,13 +328,30 @@ class BetclicWidget {
   // ── API publique ─────────────────────────────────────────────────────────────
 
   setMatch(data) {
-    this._scrapedData       = data
+    this._scrapedData             = data
     this._matchNone.style.display = 'none'
     this._matchInfo.style.display = 'block'
     this._matchName.textContent   = data.match
     const n = Object.keys(data.markets ?? {}).length
     this._matchSub.textContent = `${n} marché${n > 1 ? 's' : ''} détecté${n > 1 ? 's' : ''}`
     this._analyzeBtn.disabled = false
+    this._renderLive(data.live, data.home, data.away)
+  }
+
+  _renderLive(live, home, away) {
+    if (!live) { this._matchLive.style.display = 'none'; return }
+
+    const redTag = (n, cls) => n > 0 ? `<span class="live-red ${cls}">${n}</span>` : ''
+
+    this._matchLive.innerHTML = `
+      <div class="live-timer">${live.timer}</div>
+      <div class="live-score-row">
+        <span class="live-team home">${home}${redTag(live.redCards.home, 'home')}</span>
+        <span class="live-score">${live.score.home} - ${live.score.away}</span>
+        <span class="live-team away">${redTag(live.redCards.away, 'away')}${away}</span>
+      </div>
+    `
+    this._matchLive.style.display = 'block'
   }
 
   clearMatch() {
@@ -315,7 +376,11 @@ class BetclicWidget {
       res => {
         this._setLoading(false)
         if (!res?.ok)             { this._setError(res?.error ?? 'Erreur inconnue'); return }
-        if (!res.tickets?.length) { this._setError('Aucun ticket reçu'); return }
+        if (!res.tickets?.length) {
+          const preview = res.raw ? res.raw.slice(0, 200).replace(/\n/g, ' ') : '(vide)'
+          this._setError(`Aucun ticket parsé. Réponse LLM : ${preview}`)
+          return
+        }
         this._renderTickets(res.tickets)
       }
     )
@@ -352,26 +417,37 @@ class BetclicWidget {
   }
 
   _renderDOM(t) {
-    const COLORS = { SAFE: '#22c55e', MEDIUM: '#eab308', RISKY: '#ef4444' }
-    const BG     = { SAFE: 'rgba(34,197,94,.07)', MEDIUM: 'rgba(234,179,8,.07)', RISKY: 'rgba(239,68,68,.07)' }
-    const BORDER = { SAFE: 'rgba(34,197,94,.2)',  MEDIUM: 'rgba(234,179,8,.2)',  RISKY: 'rgba(239,68,68,.2)' }
-    const ICONS  = { SAFE: '🟢', MEDIUM: '🟡', RISKY: '🔴' }
-    const odd    = isNaN(t.odd) ? '×?' : `≈×${t.odd.toFixed(2)}`
+    const PLAN_COLORS = ['#3b82f6', '#8b5cf6', '#E3001B']
+    const planIdx = parseInt(t.level.replace(/\D/g, '')) - 1
+    const color   = PLAN_COLORS[planIdx] ?? '#475569'
+    const odd     = isNaN(t.odd) ? '×?' : `×${t.odd.toFixed(2)}`
+    const warn    = t.outOfRange
 
     const card = mk('div')
-    card.style.cssText = `border-radius:12px;padding:12px 14px;background:#FFFFFF;border:1px solid ${BORDER[t.level]??'transparent'};border-left:4px solid ${COLORS[t.level]??'#475569'};box-shadow:0 2px 8px rgba(0,0,0,0.04);transition:transform 0.2s ease, box-shadow 0.2s ease;`
+    card.style.cssText = `border-radius:12px;padding:12px 14px;background:#FFFFFF;border:1px solid ${warn ? 'rgba(239,68,68,.3)' : 'rgba(0,0,0,.06)'};border-left:4px solid ${warn ? '#ef4444' : color};box-shadow:0 2px 8px rgba(0,0,0,0.04);`
 
     const header = mk('div')
     header.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #F3F4F6;'
 
     const lvl = mk('span')
-    lvl.style.cssText = `font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:${COLORS[t.level]??'#475569'};display:flex;align-items:center;gap:4px;`
-    lvl.textContent = `${ICONS[t.level]??''} ${t.level}`
+    lvl.style.cssText = `font-size:12px;font-weight:800;color:${color};`
+    lvl.textContent = t.level
+
+    const right = mk('div')
+    right.style.cssText = 'display:flex;align-items:center;gap:6px;'
+
+    if (warn) {
+      const warnEl = mk('span')
+      warnEl.style.cssText = 'font-size:10px;color:#ef4444;font-weight:700;'
+      warnEl.textContent = '⚠ cote > 7'
+      right.appendChild(warnEl)
+    }
 
     const oddEl = mk('span')
-    oddEl.style.cssText = 'font-size:16px;font-weight:900;color:#111827;background:#F3F4F6;padding:4px 10px;border-radius:16px;'
+    oddEl.style.cssText = `font-size:16px;font-weight:900;color:#111827;background:${warn ? 'rgba(239,68,68,.08)' : '#F3F4F6'};padding:4px 10px;border-radius:16px;`
     oddEl.textContent = odd
-    header.append(lvl, oddEl)
+    right.appendChild(oddEl)
+    header.append(lvl, right)
 
     const bets = mk('div')
     bets.style.cssText = 'display:flex;flex-direction:column;gap:6px;'
@@ -425,9 +501,13 @@ function mount() {
     clearTimeout(scanTimer)
     scanTimer = setTimeout(() => {
       const data = scrape()
-      if (data && data.match !== lastMatch) {
+      if (!data) return
+      if (data.match !== lastMatch) {
         lastMatch = data.match
         widget.setMatch(data)
+      } else {
+        // Match déjà affiché : refresh uniquement les données live
+        widget._renderLive(data.live, data.home, data.away)
       }
     }, 800)
   }).observe(document.body, { childList: true, subtree: true })
