@@ -162,7 +162,9 @@ function parseTickets(text) {
       if (t._selOdds.length === t.bets.length && t._selOdds.length > 0) {
         odd = parseFloat(t._selOdds.reduce((acc, o) => acc * o, 1).toFixed(2))
       }
-      return { level: t.level, bets: t.bets, odd }
+      // selOdds : cotes individuelles alignées sur bets (null si absente)
+      const selOdds = t._selOdds.length === t.bets.length ? t._selOdds : t.bets.map(() => null)
+      return { level: t.level, bets: t.bets, selOdds, odd }
     })
 }
 

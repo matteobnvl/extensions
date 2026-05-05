@@ -13,45 +13,33 @@
       color: #cbd5e1;
     }
 
-    /* ── Header ── */
     .header {
       background: #1e293b;
       padding: 12px 16px;
       border-bottom: 1px solid #1e3a5f;
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      gap: 10px;
     }
-    .header-left { display: flex; align-items: center; gap: 10px; }
-    .header-icon { font-size: 22px; }
+    .header-icon  { font-size: 22px; }
     .header-title { font-size: 14px; font-weight: 700; color: #f1f5f9; }
-    .header-sub { font-size: 10px; color: #475569; margin-top: 1px; }
+    .header-sub   { font-size: 10px; color: #475569; margin-top: 1px; }
 
-    /* ── Tabs ── */
-    .tabs {
-      display: flex;
-      border-bottom: 1px solid #1e293b;
-    }
+    .tabs { display: flex; border-bottom: 1px solid #1e293b; }
     .tab-btn {
       flex: 1;
       padding: 9px 0;
       background: none;
       border: none;
+      border-bottom: 2px solid transparent;
       font-size: 11px;
       font-weight: 600;
       color: #475569;
       cursor: pointer;
-      letter-spacing: 0.3px;
-      border-bottom: 2px solid transparent;
     }
-    .tab-btn.active { color: #60a5fa; border-bottom-color: #3b82f6; }
+    .tab-btn.active      { color: #60a5fa; border-bottom-color: #3b82f6; }
     .tab-btn:hover:not(.active) { color: #94a3b8; }
 
-    /* ── Panels ── */
-    .panel { display: none; }
-    .panel.active { display: block; }
-
-    /* ── Analyse panel ── */
     .body { padding: 12px 14px; }
 
     .match-box {
@@ -60,20 +48,20 @@
       border-radius: 8px;
       padding: 10px 12px;
       margin-bottom: 10px;
+      min-height: 52px;
     }
     .match-label { font-size: 9px; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
     .match-name  { font-size: 13px; font-weight: 700; color: #f1f5f9; }
     .match-sub   { font-size: 10px; color: #64748b; margin-top: 3px; }
     .match-none  { font-size: 11px; color: #475569; font-style: italic; }
 
-    /* ── Mode toggle ── */
     .mode-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
       margin-bottom: 10px;
     }
-    .mode-label { font-size: 11px; color: #64748b; }
+    .mode-label  { font-size: 11px; color: #64748b; }
     .toggle-wrap { display: flex; background: #1e293b; border-radius: 6px; padding: 2px; gap: 2px; }
     .mode-btn {
       padding: 4px 10px;
@@ -87,7 +75,6 @@
     }
     .mode-btn.active { background: #1e3a5f; color: #60a5fa; }
 
-    /* ── Analyze button ── */
     .analyze-btn {
       width: 100%;
       padding: 10px;
@@ -98,12 +85,10 @@
       font-weight: 700;
       color: #fff;
       cursor: pointer;
-      letter-spacing: 0.3px;
     }
-    .analyze-btn:hover:not(:disabled) { background: #2563eb; }
-    .analyze-btn:disabled { opacity: 0.45; cursor: default; }
+    .analyze-btn:hover:not([disabled]) { background: #2563eb; }
+    .analyze-btn[disabled] { opacity: 0.45; cursor: default; }
 
-    /* ── Error ── */
     .error-box {
       margin-top: 10px;
       padding: 9px 12px;
@@ -112,12 +97,10 @@
       border-radius: 8px;
       font-size: 11px;
       color: #f87171;
-      display: none;
     }
 
-    /* ── Loading ── */
     .loading-box {
-      display: none;
+      display: flex;
       align-items: center;
       gap: 8px;
       margin-top: 12px;
@@ -133,87 +116,27 @@
       flex-shrink: 0;
     }
 
-    /* ── Tickets ── */
-    .tickets { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+    /* Les tickets sont des <bet-ticket> insérés en JS — gap entre eux */
+    #tickets-container { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
 
-    .ticket {
-      border-radius: 8px;
-      padding: 10px 12px;
-      border: 1px solid transparent;
-    }
-    .ticket.SAFE   { background: rgba(34,197,94,.07);  border-color: rgba(34,197,94,.2); }
-    .ticket.MEDIUM { background: rgba(234,179,8,.07);  border-color: rgba(234,179,8,.2); }
-    .ticket.RISKY  { background: rgba(239,68,68,.07);  border-color: rgba(239,68,68,.2); }
-
-    .ticket-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 7px;
-    }
-    .ticket-level {
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-    }
-    .SAFE   .ticket-level { color: #22c55e; }
-    .MEDIUM .ticket-level { color: #eab308; }
-    .RISKY  .ticket-level { color: #ef4444; }
-
-    .ticket-odd {
-      font-size: 13px;
-      font-weight: 800;
-      color: #f1f5f9;
-    }
-
-    .ticket-bets { display: flex; flex-direction: column; gap: 3px; }
-    .ticket-bet {
-      font-size: 11px;
-      color: #94a3b8;
-      display: flex;
-      align-items: flex-start;
-      gap: 5px;
-    }
-    .bet-dot {
-      width: 4px; height: 4px;
-      border-radius: 50%;
-      background: #475569;
-      margin-top: 5px;
-      flex-shrink: 0;
-    }
-
-    /* ── Settings panel ── */
     .settings-body { padding: 12px 14px; display: flex; flex-direction: column; gap: 14px; }
+    .field-group   { display: flex; flex-direction: column; gap: 5px; }
+    .field-label   { font-size: 10px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; }
+    .field-hint    { font-size: 9px; color: #334155; }
 
-    .field-group { display: flex; flex-direction: column; gap: 5px; }
-    .field-label { font-size: 10px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; }
-
-    .input-wrap { position: relative; }
-    input[type="password"], input[type="text"] {
+    input[type="text"] {
       width: 100%;
       background: #1e293b;
       border: 1px solid #1e3a5f;
       border-radius: 6px;
-      padding: 8px 34px 8px 10px;
+      padding: 8px 10px;
       font-size: 11px;
       color: #f1f5f9;
       outline: none;
       font-family: inherit;
     }
-    input:focus { border-color: #3b82f6; }
-    input::placeholder { color: #334155; }
-
-    .eye-btn {
-      position: absolute;
-      right: 9px; top: 50%;
-      transform: translateY(-50%);
-      background: none; border: none;
-      color: #475569; cursor: pointer;
-      font-size: 13px; line-height: 1;
-    }
-    .eye-btn:hover { color: #94a3b8; }
-
-    .field-hint { font-size: 9px; color: #334155; }
+    input[type="text"]:focus { border-color: #3b82f6; }
+    input[type="text"]::placeholder { color: #334155; }
 
     .save-btn {
       padding: 9px;
@@ -227,17 +150,8 @@
       width: 100%;
     }
     .save-btn:hover { background: #1e4a7a; }
+    .save-feedback  { text-align: center; font-size: 10px; color: #22c55e; min-height: 14px; }
 
-    .save-feedback {
-      text-align: center;
-      font-size: 10px;
-      height: 13px;
-      color: transparent;
-    }
-    .save-feedback.ok  { color: #22c55e; }
-    .save-feedback.err { color: #ef4444; }
-
-    /* ── Footer ── */
     .footer {
       border-top: 1px solid #1e293b;
       padding: 7px 14px;
@@ -247,89 +161,100 @@
       justify-content: space-between;
     }
 
+    /* Masque les panels avant qu'Alpine initialise */
+    [x-cloak] { display: none !important; }
+
     @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
-<body>
+
+<!--
+  x-data="betAnalyzer" : référence le composant enregistré via Alpine.data()
+  Avec @alpinejs/csp : aucune expression JS dans le HTML — uniquement des
+  références à des propriétés booléennes/string ou des noms de méthodes.
+-->
+<body x-data="betAnalyzer" x-init="init">
 
   <div class="header">
-    <div class="header-left">
-      <span class="header-icon">⚽</span>
-      <div>
-        <div class="header-title">Betclic AI</div>
-        <div class="header-sub">Assistant paris sportifs</div>
-      </div>
+    <span class="header-icon">⚽</span>
+    <div>
+      <div class="header-title">Betclic AI</div>
+      <div class="header-sub">Assistant paris sportifs</div>
     </div>
   </div>
 
+  <!-- ── Onglets ── -->
   <div class="tabs">
-    <button class="tab-btn active" data-tab="analyse">Analyse</button>
-    <button class="tab-btn" data-tab="settings">Paramètres</button>
+    <button class="tab-btn" :class="analyseTabClass"  @click="gotoAnalyse">Analyse</button>
+    <button class="tab-btn" :class="settingsTabClass" @click="gotoSettings">Paramètres</button>
   </div>
 
-  <!-- ── Analyse ── -->
-  <div class="panel active" id="panel-analyse">
+  <!-- ── Panel Analyse ── -->
+  <div x-show="panelAnalyse" x-cloak>
     <div class="body">
 
-      <div class="match-box" id="match-box">
+      <div class="match-box">
         <div class="match-label">Match détecté</div>
-        <div class="match-none" id="match-none">Aucun match — allez sur une page Betclic</div>
-        <div id="match-info" style="display:none">
-          <div class="match-name" id="match-name"></div>
-          <div class="match-sub" id="match-sub"></div>
+        <div class="match-none" x-show="noMatch">Aucun match — allez sur une page Betclic</div>
+        <div x-show="hasMatch">
+          <div class="match-name" x-text="matchName"></div>
+          <div class="match-sub"  x-text="matchSub"></div>
         </div>
       </div>
 
       <div class="mode-row">
         <span class="mode-label">Mode</span>
         <div class="toggle-wrap">
-          <button class="mode-btn active" id="mode-normal">Normal</button>
-          <button class="mode-btn" id="mode-aggressive">Agressif</button>
+          <button class="mode-btn" :class="normalModeClass"     @click="setNormalMode">Normal</button>
+          <button class="mode-btn" :class="aggressiveModeClass" @click="setAggressiveMode">Agressif</button>
         </div>
       </div>
 
-      <button class="analyze-btn" id="analyze-btn" disabled>Analyser ce match</button>
+      <button class="analyze-btn" :disabled="analyzeDisabled" @click="analyze">
+        Analyser ce match
+      </button>
 
-      <div class="error-box" id="error-box"></div>
+      <div class="error-box" x-show="hasError" x-text="errorText"></div>
 
-      <div class="loading-box" id="loading-box">
+      <div class="loading-box" x-show="loading">
         <div class="spinner"></div>
-        <span id="loading-text">Scraping des cotes…</span>
+        <span x-text="loadingText"></span>
       </div>
 
-      <div class="tickets" id="tickets"></div>
+      <!--
+        Tickets rendus par _renderTickets() via des <bet-ticket> Web Components.
+        Alpine gère l'état (chargement, erreur, mode).
+        Le Web Component gère l'affichage encapsulé de chaque ticket (Shadow DOM).
+      -->
+      <div id="tickets-container"></div>
 
     </div>
   </div>
 
-  <!-- ── Settings ── -->
-  <div class="panel" id="panel-settings">
+  <!-- ── Panel Paramètres ── -->
+  <div x-show="panelSettings" x-cloak>
     <div class="settings-body">
 
       <div class="field-group">
         <label class="field-label">Base URL Ollama</label>
-        <div class="input-wrap">
-          <input type="text" id="api-base" placeholder="http://localhost:8080">
-        </div>
+        <input type="text" x-model="apiBase" placeholder="http://localhost:8080">
         <span class="field-hint">Défaut : http://localhost:8080</span>
       </div>
 
       <div class="field-group">
         <label class="field-label">Modèle</label>
-        <div class="input-wrap">
-          <input type="text" id="api-model" placeholder="qwen2.5-coder:latest">
-        </div>
+        <input type="text" x-model="apiModel" placeholder="qwen2.5-coder:latest">
         <span class="field-hint">Défaut : qwen2.5-coder:latest</span>
       </div>
 
-      <button class="save-btn" id="save-btn">Sauvegarder</button>
-      <div class="save-feedback" id="save-feedback"></div>
+      <button class="save-btn" @click="saveSettings">Sauvegarder</button>
+      <div class="save-feedback" x-text="saveFeedback"></div>
 
     </div>
   </div>
 
   <div class="footer">
-    <span>Betclic AI · MV3</span>
+    <span>Web Component + Alpine.js CSP · MV3</span>
     <span>v1.0</span>
   </div>
 

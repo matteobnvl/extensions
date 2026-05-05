@@ -1,159 +1,152 @@
-// ─── Tab switching ────────────────────────────────────────────────────────────
+import Alpine from '@alpinejs/csp'
+import './bet-ticket.js'
 
-document.querySelectorAll('.tab-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'))
-    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'))
-    btn.classList.add('active')
-    document.getElementById(`panel-${btn.dataset.tab}`).classList.add('active')
-  })
+document.addEventListener('alpine:init', () => {
+  Alpine.data('betAnalyzer', () => ({
+
+    // ── Panels (x-show attend une propriété booléenne directe) ─────────
+    panelAnalyse:  true,
+    panelSettings: false,
+
+    // ── Tab active classes (:class attend une propriété string) ────────
+    analyseTabClass:  'active',
+    settingsTabClass: '',
+
+    // ── Mode ───────────────────────────────────────────────────────────
+    normalModeClass:     'active',
+    aggressiveModeClass: '',
+    _mode: 'normal',
+
+    // ── Match ──────────────────────────────────────────────────────────
+    noMatch:  true,
+    hasMatch: false,
+    matchName: '',
+    matchSub:  '',
+    _scrapedData: null,
+
+    // ── Analyse ────────────────────────────────────────────────────────
+    analyzeDisabled: true,
+    loading:     false,
+    loadingText: 'Analyse en cours…',
+    hasError:  false,
+    errorText: '',
+
+    // ── Settings ───────────────────────────────────────────────────────
+    apiBase:      '',
+    apiModel:     '',
+    saveFeedback: '',
+
+    // ── Init ───────────────────────────────────────────────────────────
+    init() {
+      chrome.runtime.sendMessage({ type: 'LOAD_SETTINGS' }, res => {
+        if (chrome.runtime.lastError) return
+        const s = res?.settings ?? {}
+        this.apiBase  = s.apiBase  ?? ''
+        this.apiModel = s.apiModel ?? ''
+      })
+      this._autoScrape()
+    },
+
+    // ── Tab navigation ─────────────────────────────────────────────────
+    gotoAnalyse() {
+      this.panelAnalyse  = true;  this.panelSettings  = false
+      this.analyseTabClass = 'active'; this.settingsTabClass = ''
+    },
+    gotoSettings() {
+      this.panelAnalyse  = false; this.panelSettings  = true
+      this.analyseTabClass = '';  this.settingsTabClass = 'active'
+    },
+
+    // ── Mode toggle ────────────────────────────────────────────────────
+    setNormalMode() {
+      this._mode = 'normal'
+      this.normalModeClass = 'active'; this.aggressiveModeClass = ''
+    },
+    setAggressiveMode() {
+      this._mode = 'aggressive'
+      this.normalModeClass = '';  this.aggressiveModeClass = 'active'
+    },
+
+    // ── Auto-scrape on open ────────────────────────────────────────────
+    _autoScrape() {
+      chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
+        if (!tab?.id) return
+        const host = tab.url ? new URL(tab.url).hostname.replace(/^www\./, '') : ''
+        if (!host.includes('betclic')) return
+
+        chrome.tabs.sendMessage(tab.id, { type: 'SCRAPE_ODDS' }, res => {
+          if (chrome.runtime.lastError) return
+          if (res?.ok && res.data) {
+            this._scrapedData  = res.data
+            this.matchName     = res.data.match
+            const n = Object.keys(res.data.markets ?? {}).length
+            this.matchSub      = `${n} marché${n > 1 ? 's' : ''} détecté${n > 1 ? 's' : ''}`
+            this.noMatch       = false
+            this.hasMatch      = true
+            this.analyzeDisabled = false
+          }
+        })
+      })
+    },
+
+    // ── Analyze ────────────────────────────────────────────────────────
+    analyze() {
+      if (!this._scrapedData) return
+
+      this.loading  = true
+      this.analyzeDisabled = true
+      this.hasError = false
+      this.errorText = ''
+      document.getElementById('tickets-container').innerHTML = ''
+
+      chrome.runtime.sendMessage(
+        { type: 'ANALYZE', data: this._scrapedData, mode: this._mode },
+        res => {
+          this.loading = false
+          this.analyzeDisabled = false
+
+          if (!res?.ok) {
+            this.hasError  = true
+            this.errorText = '⚠ ' + (res?.error ?? 'Erreur inconnue')
+            return
+          }
+          if (!res.tickets?.length) {
+            this.hasError  = true
+            this.errorText = '⚠ Aucun ticket reçu — vérifiez la réponse du modèle'
+            return
+          }
+          this._renderTickets(res.tickets)
+        }
+      )
+    },
+
+    // Rendu des tickets via le Web Component <bet-ticket>
+    // Alpine gère l'état, le WC gère l'affichage — les deux cohabitent
+    _renderTickets(tickets) {
+      const container = document.getElementById('tickets-container')
+      container.innerHTML = ''
+      for (const t of tickets) {
+        const el = document.createElement('bet-ticket')
+        el.setAttribute('level', t.level)
+        el.setAttribute('odd', String(t.odd))
+        // bets = [{text, odd}] pour afficher la cote individuelle dans le WC
+        const bets = t.bets.map((text, i) => ({ text, odd: t.selOdds?.[i] ?? null }))
+        el.setAttribute('bets', JSON.stringify(bets))
+        container.appendChild(el)
+      }
+    },
+
+    // ── Settings ───────────────────────────────────────────────────────
+    saveSettings() {
+      chrome.runtime.sendMessage({
+        type: 'SAVE_SETTINGS',
+        settings: { apiBase: this.apiBase.trim(), apiModel: this.apiModel.trim() },
+      }, () => {
+        this.saveFeedback = 'Sauvegardé ✓'
+        setTimeout(() => { this.saveFeedback = '' }, 2000)
+      })
+    },
+  }))
 })
 
-// ─── Settings panel ───────────────────────────────────────────────────────────
-
-const apiBaseInput  = document.getElementById('api-base')
-const apiModelInput = document.getElementById('api-model')
-const saveBtn       = document.getElementById('save-btn')
-const saveFeedback  = document.getElementById('save-feedback')
-
-chrome.runtime.sendMessage({ type: 'LOAD_SETTINGS' }, ({ settings }) => {
-  if (settings.apiBase)  apiBaseInput.value  = settings.apiBase
-  if (settings.apiModel) apiModelInput.value = settings.apiModel
-})
-
-saveBtn.addEventListener('click', () => {
-  const apiBase  = apiBaseInput.value.trim()
-  const apiModel = apiModelInput.value.trim()
-  chrome.runtime.sendMessage({ type: 'SAVE_SETTINGS', settings: { apiBase, apiModel } }, () => {
-    showFeedback('Sauvegardé ✓', 'ok')
-  })
-})
-
-function showFeedback(msg, cls) {
-  saveFeedback.textContent = msg
-  saveFeedback.className = 'save-feedback ' + cls
-  setTimeout(() => { saveFeedback.className = 'save-feedback' }, 2000)
-}
-
-// ─── Mode toggle ──────────────────────────────────────────────────────────────
-
-let mode = 'normal'
-document.getElementById('mode-normal').addEventListener('click', () => setMode('normal'))
-document.getElementById('mode-aggressive').addEventListener('click', () => setMode('aggressive'))
-
-function setMode(m) {
-  mode = m
-  document.getElementById('mode-normal').classList.toggle('active', m === 'normal')
-  document.getElementById('mode-aggressive').classList.toggle('active', m === 'aggressive')
-}
-
-// ─── Analyse ─────────────────────────────────────────────────────────────────
-
-const analyzeBtn  = document.getElementById('analyze-btn')
-const matchNone   = document.getElementById('match-none')
-const matchInfo   = document.getElementById('match-info')
-const matchName   = document.getElementById('match-name')
-const matchSub    = document.getElementById('match-sub')
-const errorBox    = document.getElementById('error-box')
-const loadingBox  = document.getElementById('loading-box')
-const loadingText = document.getElementById('loading-text')
-const ticketsEl   = document.getElementById('tickets')
-
-let scrapedData = null
-
-// Auto-scrape on open to detect match
-;(async () => {
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
-  if (!tab?.id) return
-
-  const host = tab.url ? new URL(tab.url).hostname.replace(/^www\./, '') : ''
-  if (!host.includes('betclic')) return
-
-  try {
-    const res = await chrome.tabs.sendMessage(tab.id, { type: 'SCRAPE_ODDS' })
-    if (res?.ok && res.data) {
-      scrapedData = res.data
-      matchNone.style.display = 'none'
-      matchInfo.style.display = 'block'
-      matchName.textContent   = res.data.match
-
-      const n = Object.keys(res.data.markets ?? {}).length
-      matchSub.textContent = `${n} marché${n > 1 ? 's' : ''} détecté${n > 1 ? 's' : ''}`
-
-      analyzeBtn.disabled = false
-    }
-  } catch {
-    // Content script not yet injected (page still loading) — silent fail
-  }
-})()
-
-analyzeBtn.addEventListener('click', async () => {
-  if (!scrapedData) return
-
-  setLoading(true, 'Analyse en cours…')
-  errorBox.style.display = 'none'
-  ticketsEl.innerHTML = ''
-
-  chrome.runtime.sendMessage({ type: 'ANALYZE', data: scrapedData, mode }, res => {
-    setLoading(false)
-    if (!res?.ok) {
-      showError(res?.error ?? 'Erreur inconnue')
-      return
-    }
-    if (!res.tickets?.length) {
-      showError('Aucun ticket reçu — vérifiez le format de réponse du modèle')
-      return
-    }
-    renderTickets(res.tickets)
-  })
-})
-
-function setLoading(on, text = '') {
-  analyzeBtn.disabled = on
-  loadingBox.style.display = on ? 'flex' : 'none'
-  if (text) loadingText.textContent = text
-}
-
-function showError(msg) {
-  errorBox.textContent = '⚠ ' + msg
-  errorBox.style.display = 'block'
-}
-
-function renderTickets(tickets) {
-  const ICONS = { SAFE: '🟢', MEDIUM: '🟡', RISKY: '🔴' }
-  ticketsEl.innerHTML = ''
-
-  for (const t of tickets) {
-    const card = document.createElement('div')
-    card.className = `ticket ${t.level}`
-
-    const header = document.createElement('div')
-    header.className = 'ticket-header'
-
-    const level = document.createElement('span')
-    level.className = 'ticket-level'
-    level.textContent = `${ICONS[t.level] ?? ''} ${t.level}`
-
-    const odd = document.createElement('span')
-    odd.className = 'ticket-odd'
-    odd.textContent = isNaN(t.odd) ? '×?' : `×${t.odd.toFixed(2)}`
-
-    header.append(level, odd)
-
-    const bets = document.createElement('div')
-    bets.className = 'ticket-bets'
-    for (const b of t.bets) {
-      const row = document.createElement('div')
-      row.className = 'ticket-bet'
-      const dot = document.createElement('span')
-      dot.className = 'bet-dot'
-      const text = document.createElement('span')
-      text.textContent = b
-      row.append(dot, text)
-      bets.appendChild(row)
-    }
-
-    card.append(header, bets)
-    ticketsEl.appendChild(card)
-  }
-}
+Alpine.start()
