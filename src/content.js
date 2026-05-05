@@ -1,7 +1,5 @@
 import './bet-ticket.js'
 
-// ─── Scraper ──────────────────────────────────────────────────────────────────
-
 function oddFromBtn(btn) {
   const label = btn.querySelector('bcdk-bet-button-label.btn_label:not(.is-top)')
   if (!label) return null
@@ -42,8 +40,6 @@ function scrape() {
   }
   return { match: `${home} vs ${away}`, home, away, markets }
 }
-
-// ─── Styles du widget ─────────────────────────────────────────────────────────
 
 const STYLES = `
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -150,8 +146,6 @@ const STYLES = `
 
   @keyframes spin { to { transform: rotate(360deg); } }
 `
-
-// ─── Widget ───────────────────────────────────────────────────────────────────
 
 function mk(tag, cls) {
   const el = document.createElement(tag)
@@ -393,8 +387,6 @@ class BetclicWidget {
   }
 }
 
-// ─── Bootstrap ────────────────────────────────────────────────────────────────
-
 function mount() {
   if (document.getElementById('betclic-ai-host')) return
 
@@ -432,8 +424,6 @@ function mount() {
 }
 
 mount()
-
-// ─── Listener pour le popup (compatibilité) ───────────────────────────────────
 
 chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   if (msg.type !== 'SCRAPE_ODDS') return false

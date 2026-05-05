@@ -3,40 +3,27 @@ import './bet-ticket.js'
 
 document.addEventListener('alpine:init', () => {
   Alpine.data('betAnalyzer', () => ({
-
-    // ── Panels (x-show attend une propriété booléenne directe) ─────────
     panelAnalyse:  true,
     panelSettings: false,
-
-    // ── Tab active classes (:class attend une propriété string) ────────
     analyseTabClass:  'active',
     settingsTabClass: '',
-
-    // ── Mode ───────────────────────────────────────────────────────────
     normalModeClass:     'active',
     aggressiveModeClass: '',
     _mode: 'normal',
-
-    // ── Match ──────────────────────────────────────────────────────────
     noMatch:  true,
     hasMatch: false,
     matchName: '',
     matchSub:  '',
     _scrapedData: null,
-
-    // ── Analyse ────────────────────────────────────────────────────────
     analyzeDisabled: true,
     loading:     false,
     loadingText: 'Analyse en cours…',
     hasError:  false,
     errorText: '',
-
-    // ── Settings ───────────────────────────────────────────────────────
     apiBase:      '',
     apiModel:     '',
     saveFeedback: '',
 
-    // ── Init ───────────────────────────────────────────────────────────
     init() {
       chrome.runtime.sendMessage({ type: 'LOAD_SETTINGS' }, res => {
         if (chrome.runtime.lastError) return
@@ -46,8 +33,6 @@ document.addEventListener('alpine:init', () => {
       })
       this._autoScrape()
     },
-
-    // ── Tab navigation ─────────────────────────────────────────────────
     gotoAnalyse() {
       this.panelAnalyse  = true;  this.panelSettings  = false
       this.analyseTabClass = 'active'; this.settingsTabClass = ''
@@ -56,8 +41,6 @@ document.addEventListener('alpine:init', () => {
       this.panelAnalyse  = false; this.panelSettings  = true
       this.analyseTabClass = '';  this.settingsTabClass = 'active'
     },
-
-    // ── Mode toggle ────────────────────────────────────────────────────
     setNormalMode() {
       this._mode = 'normal'
       this.normalModeClass = 'active'; this.aggressiveModeClass = ''
@@ -66,8 +49,6 @@ document.addEventListener('alpine:init', () => {
       this._mode = 'aggressive'
       this.normalModeClass = '';  this.aggressiveModeClass = 'active'
     },
-
-    // ── Auto-scrape on open ────────────────────────────────────────────
     _autoScrape() {
       chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
         if (!tab?.id) return
@@ -88,8 +69,6 @@ document.addEventListener('alpine:init', () => {
         })
       })
     },
-
-    // ── Analyze ────────────────────────────────────────────────────────
     analyze() {
       if (!this._scrapedData) return
 
@@ -119,9 +98,6 @@ document.addEventListener('alpine:init', () => {
         }
       )
     },
-
-    // Rendu des tickets via le Web Component <bet-ticket>
-    // Alpine gère l'état, le WC gère l'affichage — les deux cohabitent
     _renderTickets(tickets) {
       const container = document.getElementById('tickets-container')
       container.innerHTML = ''
@@ -135,8 +111,6 @@ document.addEventListener('alpine:init', () => {
         container.appendChild(el)
       }
     },
-
-    // ── Settings ───────────────────────────────────────────────────────
     saveSettings() {
       chrome.runtime.sendMessage({
         type: 'SAVE_SETTINGS',

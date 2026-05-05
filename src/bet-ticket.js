@@ -1,17 +1,14 @@
-// Web Component <bet-ticket> — rendu encapsulé dans un Shadow DOM
-// Attributs : level (SAFE | MEDIUM | RISKY), odd (number), bets (JSON array)
+const THEME = {
+  SAFE:   { color: '#22c55e', bg: 'rgba(34,197,94,.07)',  border: 'rgba(34,197,94,.2)',  icon: '🟢' },
+  MEDIUM: { color: '#eab308', bg: 'rgba(234,179,8,.07)',  border: 'rgba(234,179,8,.2)',  icon: '🟡' },
+  RISKY:  { color: '#ef4444', bg: 'rgba(239,68,68,.07)',  border: 'rgba(239,68,68,.2)',  icon: '🔴' },
+}
 
 function esc(str) {
   return String(str)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
-}
-
-const THEME = {
-  SAFE:   { color: '#22c55e', bg: 'rgba(34,197,94,.07)',  border: 'rgba(34,197,94,.2)',  icon: '🟢' },
-  MEDIUM: { color: '#eab308', bg: 'rgba(234,179,8,.07)',  border: 'rgba(234,179,8,.2)',  icon: '🟡' },
-  RISKY:  { color: '#ef4444', bg: 'rgba(239,68,68,.07)',  border: 'rgba(239,68,68,.2)',  icon: '🔴' },
 }
 
 class BetTicket extends HTMLElement {
@@ -90,4 +87,4 @@ class BetTicket extends HTMLElement {
   }
 }
 
-try { customElements.define('bet-ticket', BetTicket) } catch {} // double-define ou contexte isolé
+try { customElements.define('bet-ticket', BetTicket) } catch {}

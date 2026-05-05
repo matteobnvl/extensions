@@ -161,18 +161,12 @@
       justify-content: space-between;
     }
 
-    /* Masque les panels avant qu'Alpine initialise */
     [x-cloak] { display: none !important; }
 
     @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 
-<!--
-  x-data="betAnalyzer" : référence le composant enregistré via Alpine.data()
-  Avec @alpinejs/csp : aucune expression JS dans le HTML — uniquement des
-  références à des propriétés booléennes/string ou des noms de méthodes.
--->
 <body x-data="betAnalyzer" x-init="init">
 
   <div class="header">
@@ -182,14 +176,10 @@
       <div class="header-sub">Assistant paris sportifs</div>
     </div>
   </div>
-
-  <!-- ── Onglets ── -->
   <div class="tabs">
     <button class="tab-btn" :class="analyseTabClass"  @click="gotoAnalyse">Analyse</button>
     <button class="tab-btn" :class="settingsTabClass" @click="gotoSettings">Paramètres</button>
   </div>
-
-  <!-- ── Panel Analyse ── -->
   <div x-show="panelAnalyse" x-cloak>
     <div class="body">
 
@@ -220,12 +210,6 @@
         <div class="spinner"></div>
         <span x-text="loadingText"></span>
       </div>
-
-      <!--
-        Tickets rendus par _renderTickets() via des <bet-ticket> Web Components.
-        Alpine gère l'état (chargement, erreur, mode).
-        Le Web Component gère l'affichage encapsulé de chaque ticket (Shadow DOM).
-      -->
       <div id="tickets-container"></div>
 
     </div>

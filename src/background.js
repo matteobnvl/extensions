@@ -1,17 +1,5 @@
 const DEFAULT_BASE  = 'http://localhost:8080'
 const DEFAULT_MODEL = 'qwen2.5-coder:latest'
-
-// ─── Settings ─────────────────────────────────────────────────────────────────
-
-function loadSettings() {
-  return new Promise(resolve =>
-    chrome.storage.local.get(['apiBase', 'apiModel', 'mode'], resolve)
-  )
-}
-
-// ─── Market selection ─────────────────────────────────────────────────────────
-// Pick markets that are useful for combined bets, in display order.
-
 const RELEVANT = [
   { key: '1X2',            match: t => /résultat du match/i.test(t) },
   { key: 'Double chance',  match: t => /double chance/i.test(t) && !/buteur/i.test(t) },
@@ -33,7 +21,11 @@ function pickMarkets(markets) {
   return selected
 }
 
-// ─── Prompt builder ───────────────────────────────────────────────────────────
+function loadSettings() {
+  return new Promise(resolve =>
+      chrome.storage.local.get(['apiBase', 'apiModel', 'mode'], resolve)
+  )
+}
 
 function buildPrompt(data, mode) {
   const selected = pickMarkets(data.markets)
@@ -90,8 +82,6 @@ function buildPrompt(data, mode) {
   return lines.join('\n')
 }
 
-// ─── LLM call ────────────────────────────────────────────────────────────────
-
 async function callLLM(prompt, apiBase, apiModel) {
   const base  = (apiBase  ?? DEFAULT_BASE).replace(/\/$/, '')
   const model = (apiModel ?? DEFAULT_MODEL)
@@ -114,10 +104,6 @@ async function callLLM(prompt, apiBase, apiModel) {
   return (await res.json()).choices?.[0]?.message?.content ?? ''
 }
 
-// ─── Response parser ──────────────────────────────────────────────────────────
-// Line-by-line parsing. We extract individual odds from "@ X.XX" markers and
-// recalculate the combined odd ourselves — never trust the model's arithmetic.
-
 function parseTickets(text) {
   const tickets = []
   let current = null
@@ -125,7 +111,6 @@ function parseTickets(text) {
   for (const rawLine of text.split('\n')) {
     const line = rawLine.trim().replace(/\*\*/g, '')
 
-    // Ticket header: "Ticket 1 (SAFE):" or "Ticket 1 - SAFE" etc.
     const header = line.match(/ticket\s+\d+\s*[:\-–(]\s*\(?([A-Z]+)\)?/i)
     if (header) {
       if (current) tickets.push(current)
@@ -134,15 +119,12 @@ function parseTickets(text) {
     }
     if (!current) continue
 
-    // Skip the model's "Cote:" line — we recalculate from individual odds
     if (/c[oô]te?\s*(?:totale?|combin[eé]e?)?\s*:/i.test(line)) continue
 
-    // Bet line: "- Marché: Sélection @ 1.71"
     const bet = line.match(/^[-•*]\s*(.+)/)
     if (!bet || bet[1].length < 2) continue
 
     const betText = bet[1].trim()
-    // Extract trailing "@ X.XX" if present
     const atOdd = betText.match(/@\s*([\d.,]+)\s*$/)
     if (atOdd) {
       current._selOdds.push(parseFloat(atOdd[1].replace(',', '.')))
@@ -157,18 +139,15 @@ function parseTickets(text) {
   return tickets
     .filter(t => t.bets.length > 0)
     .map(t => {
-      // Recalculate combined odd if we got individual odds for every selection
       let odd = NaN
       if (t._selOdds.length === t.bets.length && t._selOdds.length > 0) {
         odd = parseFloat(t._selOdds.reduce((acc, o) => acc * o, 1).toFixed(2))
       }
-      // selOdds : cotes individuelles alignées sur bets (null si absente)
       const selOdds = t._selOdds.length === t.bets.length ? t._selOdds : t.bets.map(() => null)
       return { level: t.level, bets: t.bets, selOdds, odd }
     })
 }
 
-// ─── Message handler ──────────────────────────────────────────────────────────
 
 chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   if (msg.type === 'SAVE_SETTINGS') {
