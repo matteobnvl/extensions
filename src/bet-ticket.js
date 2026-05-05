@@ -90,4 +90,4 @@ class BetTicket extends HTMLElement {
   }
 }
 
-customElements.define('bet-ticket', BetTicket)
+try { customElements.define('bet-ticket', BetTicket) } catch {} // double-define ou contexte isolé
