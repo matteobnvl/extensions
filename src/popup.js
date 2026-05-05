@@ -136,7 +136,7 @@ function renderTickets(tickets) {
 
     const odd = document.createElement('span')
     odd.className = 'ticket-odd'
-    odd.textContent = `×${t.odd.toFixed(2)}`
+    odd.textContent = isNaN(t.odd) ? '×?' : `×${t.odd.toFixed(2)}`
 
     header.append(level, odd)
 
