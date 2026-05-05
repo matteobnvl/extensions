@@ -34,41 +34,55 @@ class BetTicket extends HTMLElement {
       <style>
         :host { display: block; }
         .card {
-          border-radius: 8px;
-          padding: 10px 12px;
-          background: ${t.bg};
+          border-radius: 12px;
+          padding: 12px 14px;
+          background: #FFFFFF;
           border: 1px solid ${t.border};
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+          border-left: 4px solid ${t.color};
+          box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+          transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(0,0,0,0.08);
         }
         .header {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          margin-bottom: 7px;
+          margin-bottom: 10px;
+          padding-bottom: 8px;
+          border-bottom: 1px solid #F3F4F6;
         }
         .level {
-          font-size: 10px;
-          font-weight: 700;
+          font-size: 11px;
+          font-weight: 800;
           letter-spacing: 0.5px;
           color: ${t.color};
+          text-transform: uppercase;
+          display: flex;
+          align-items: center;
+          gap: 4px;
         }
-        .odd { font-size: 13px; font-weight: 800; color: #f1f5f9; }
-        .bets { display: flex; flex-direction: column; gap: 3px; }
+        .odd { font-size: 16px; font-weight: 900; color: #111827; background: #F3F4F6; padding: 4px 10px; border-radius: 16px; }
+        .bets { display: flex; flex-direction: column; gap: 6px; }
         .bet {
-          font-size: 11px;
-          color: #94a3b8;
+          font-size: 12px;
+          color: #374151;
           display: flex;
           align-items: flex-start;
-          gap: 5px;
+          gap: 6px;
+          font-weight: 500;
         }
         .dot {
-          width: 4px; height: 4px;
+          width: 5px; height: 5px;
           border-radius: 50%;
-          background: #475569;
-          margin-top: 5px;
+          background: #D1D5DB;
+          margin-top: 6px;
           flex-shrink: 0;
         }
-        .bet-odd { color: #475569; font-size: 10px; white-space: nowrap; }
+        .bet-odd { color: #6B7280; font-size: 11px; font-weight: 700; white-space: nowrap; margin-left: 4px; }
       </style>
       <div class="card">
         <div class="header">

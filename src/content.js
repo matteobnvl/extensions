@@ -43,7 +43,7 @@ function scrape() {
 
 const STYLES = `
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  :host { all: initial; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+  :host { all: initial; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
 
   .widget {
     position: fixed;
@@ -51,98 +51,108 @@ const STYLES = `
     right: 20px;
     z-index: 2147483647;
     width: 320px;
-    background: #0f172a;
-    border: 1px solid #1e3a5f;
+    background: #F4F5F7;
+    border: 1px solid #E5E7EB;
     border-radius: 12px;
-    box-shadow: 0 8px 32px rgba(0,0,0,.55);
-    color: #cbd5e1;
+    box-shadow: 0 8px 32px rgba(0,0,0,.15);
+    color: #111827;
   }
 
   /* ── Handle (zone de drag) ── */
   .handle {
-    padding: 10px 12px;
-    background: #1e293b;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #E3001B, #B90016);
     border-radius: 12px 12px 0 0;
     display: flex;
     align-items: center;
     gap: 8px;
     cursor: grab;
-    border-bottom: 1px solid #1e3a5f;
     user-select: none;
+    box-shadow: 0 2px 10px rgba(227, 0, 27, 0.2);
   }
   .handle:active  { cursor: grabbing; }
-  .widget.collapsed .handle { border-radius: 12px; border-bottom: none; }
+  .widget.collapsed .handle { border-radius: 12px; }
 
-  .handle-icon  { font-size: 18px; flex-shrink: 0; }
-  .handle-title { font-size: 13px; font-weight: 700; color: #f1f5f9; flex: 1; }
+  .handle-icon  { font-size: 20px; flex-shrink: 0; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); }
+  .handle-title { font-size: 14px; font-weight: 800; color: #FFFFFF; flex: 1; letter-spacing: -0.5px; }
 
   .ctrl-btn {
     background: none;
     border: none;
-    color: #475569;
+    color: #FFFFFF;
+    opacity: 0.7;
     cursor: pointer;
-    font-size: 13px;
-    padding: 2px 7px;
+    font-size: 16px;
+    padding: 2px 6px;
     border-radius: 4px;
     line-height: 1;
     flex-shrink: 0;
+    transition: opacity 0.2s ease;
   }
-  .ctrl-btn:hover { background: #334155; color: #94a3b8; }
+  .ctrl-btn:hover { opacity: 1; background: rgba(255,255,255,0.15); }
 
   /* ── Corps ── */
-  .body { padding: 12px 14px; overflow-y: auto; max-height: 75vh; }
+  .body { padding: 14px 16px; overflow-y: auto; max-height: 75vh; }
   .widget.collapsed .body { display: none; }
 
   .match-box {
-    background: #1e293b;
-    border: 1px solid #1e3a5f;
-    border-radius: 8px;
-    padding: 9px 11px;
-    margin-bottom: 10px;
-    min-height: 44px;
+    background: #FFFFFF;
+    border: 1px solid #E5E7EB;
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+    min-height: 48px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   }
-  .match-name { font-size: 12px; font-weight: 700; color: #f1f5f9; }
-  .match-sub  { font-size: 10px; color: #64748b; margin-top: 3px; }
-  .match-none { font-size: 11px; color: #475569; font-style: italic; }
+  .match-name { font-size: 13px; font-weight: 800; color: #111827; }
+  .match-sub  { font-size: 11px; color: #6B7280; margin-top: 4px; font-weight: 500; }
+  .match-none { font-size: 12px; color: #6B7280; font-style: italic; }
 
   .mode-row {
     display: flex; align-items: center;
-    justify-content: space-between; margin-bottom: 10px;
+    justify-content: space-between; margin-bottom: 12px;
+    background: #FFFFFF;
+    padding: 6px 10px;
+    border-radius: 10px;
+    border: 1px solid #E5E7EB;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   }
-  .mode-label  { font-size: 11px; color: #64748b; }
-  .toggle-wrap { display: flex; background: #1e293b; border-radius: 6px; padding: 2px; gap: 2px; }
+  .mode-label  { font-size: 11px; font-weight: 700; color: #374151; text-transform: uppercase; letter-spacing: 0.5px; }
+  .toggle-wrap { display: flex; background: #F3F4F6; border-radius: 6px; padding: 3px; gap: 3px; }
   .mode-btn {
-    padding: 4px 10px; border: none; border-radius: 4px;
-    font-size: 10px; font-weight: 600; cursor: pointer;
-    background: none; color: #475569;
+    padding: 5px 10px; border: none; border-radius: 4px;
+    font-size: 10px; font-weight: 700; cursor: pointer;
+    background: none; color: #6B7280; transition: all 0.2s ease;
   }
-  .mode-btn.active { background: #1e3a5f; color: #60a5fa; }
+  .mode-btn.active { background: #FFFFFF; color: #E3001B; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
 
   .analyze-btn {
-    width: 100%; padding: 9px; background: #1d4ed8;
-    border: none; border-radius: 8px;
-    font-size: 11px; font-weight: 700; color: #fff; cursor: pointer;
+    width: 100%; padding: 12px; background: linear-gradient(135deg, #E3001B, #CC0016);
+    border: none; border-radius: 24px;
+    font-size: 13px; font-weight: 800; color: #FFFFFF; cursor: pointer;
+    box-shadow: 0 4px 12px rgba(227, 0, 27, 0.25);
+    transition: all 0.2s ease; text-transform: uppercase; letter-spacing: 0.5px;
   }
-  .analyze-btn:hover:not(:disabled) { background: #2563eb; }
-  .analyze-btn:disabled { opacity: 0.45; cursor: default; }
+  .analyze-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(227, 0, 27, 0.35); }
+  .analyze-btn:disabled { background: #D1D5DB; color: #9CA3AF; box-shadow: none; cursor: not-allowed; }
 
   .error-box {
-    margin-top: 8px; padding: 8px 10px;
-    background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.25);
-    border-radius: 6px; font-size: 10px; color: #f87171;
+    margin-top: 10px; padding: 10px 12px;
+    background: #FEF2F2; border: 1px solid #FCA5A5;
+    border-left: 4px solid #EF4444; border-radius: 8px; font-size: 11px; font-weight: 500; color: #B91C1C;
   }
 
   .loading-row {
-    display: flex; align-items: center; gap: 6px;
-    margin-top: 10px; font-size: 10px; color: #64748b;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    margin-top: 12px; font-size: 11px; font-weight: 600; color: #6B7280; padding: 8px;
   }
   .spinner {
-    width: 12px; height: 12px;
-    border: 2px solid #1e293b; border-top-color: #3b82f6;
+    width: 16px; height: 16px;
+    border: 2px solid #E5E7EB; border-top-color: #E3001B;
     border-radius: 50%; animation: spin .7s linear infinite; flex-shrink: 0;
   }
 
-  .tickets { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
+  .tickets { margin-top: 12px; display: flex; flex-direction: column; gap: 10px; }
 
   @keyframes spin { to { transform: rotate(360deg); } }
 `
@@ -349,34 +359,34 @@ class BetclicWidget {
     const odd    = isNaN(t.odd) ? '×?' : `≈×${t.odd.toFixed(2)}`
 
     const card = mk('div')
-    card.style.cssText = `border-radius:8px;padding:10px 12px;background:${BG[t.level]??'#1e293b'};border:1px solid ${BORDER[t.level]??'transparent'}`
+    card.style.cssText = `border-radius:12px;padding:12px 14px;background:#FFFFFF;border:1px solid ${BORDER[t.level]??'transparent'};border-left:4px solid ${COLORS[t.level]??'#475569'};box-shadow:0 2px 8px rgba(0,0,0,0.04);transition:transform 0.2s ease, box-shadow 0.2s ease;`
 
     const header = mk('div')
-    header.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin-bottom:7px'
+    header.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #F3F4F6;'
 
     const lvl = mk('span')
-    lvl.style.cssText = `font-size:10px;font-weight:700;letter-spacing:.5px;color:${COLORS[t.level]??'#475569'}`
+    lvl.style.cssText = `font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:${COLORS[t.level]??'#475569'};display:flex;align-items:center;gap:4px;`
     lvl.textContent = `${ICONS[t.level]??''} ${t.level}`
 
     const oddEl = mk('span')
-    oddEl.style.cssText = 'font-size:13px;font-weight:800;color:#f1f5f9'
+    oddEl.style.cssText = 'font-size:16px;font-weight:900;color:#111827;background:#F3F4F6;padding:4px 10px;border-radius:16px;'
     oddEl.textContent = odd
     header.append(lvl, oddEl)
 
     const bets = mk('div')
-    bets.style.cssText = 'display:flex;flex-direction:column;gap:3px'
+    bets.style.cssText = 'display:flex;flex-direction:column;gap:6px;'
     for (let i = 0; i < t.bets.length; i++) {
       const row = mk('div')
-      row.style.cssText = 'font-size:11px;color:#94a3b8;display:flex;align-items:flex-start;gap:5px'
+      row.style.cssText = 'font-size:12px;color:#374151;font-weight:500;display:flex;align-items:flex-start;gap:6px;'
       const dot = mk('span')
-      dot.style.cssText = 'width:4px;height:4px;border-radius:50%;background:#475569;margin-top:5px;flex-shrink:0'
+      dot.style.cssText = 'width:5px;height:5px;border-radius:50%;background:#D1D5DB;margin-top:6px;flex-shrink:0;'
       const txt = mk('span')
       txt.textContent = t.bets[i]
       const sel = t.selOdds?.[i]
       if (sel != null) {
         const s = mk('span')
-        s.style.cssText = 'color:#475569;font-size:10px'
-        s.textContent = ` (${sel.toFixed(2)})`
+        s.style.cssText = 'color:#6B7280;font-size:11px;font-weight:700;margin-left:4px;'
+        s.textContent = `(${sel.toFixed(2)})`
         txt.appendChild(s)
       }
       row.append(dot, txt)
